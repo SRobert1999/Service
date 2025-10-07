@@ -13,7 +13,8 @@
       <input v-model="newProgramare.prenume" placeholder="Prenume" />
       <input v-model="newProgramare.email" placeholder="Email" />
       <input v-model="newProgramare.telefon" placeholder="Telefon" />
-      <input v-model="newProgramare.data" type="date" placeholder="Data" /> <!-- doar ziua -->
+      <input v-model="newProgramare.data" type="date" placeholder="Data" />
+      <input v-model="newProgramare.ora" type="time" placeholder="Ora" />
       <textarea v-model="newProgramare.observatii" placeholder="Observatii"></textarea>
       <button @click="adaugaProgramare">Trimite</button>
     </div>
@@ -39,6 +40,7 @@ export default {
         email: "",
         telefon: "",
         data: "",
+        ora: "",
         observatii: ""
       },
       refreshTable: false
@@ -68,6 +70,7 @@ export default {
           email: "",
           telefon: "",
           data: "",
+          ora: "",
           observatii: ""
         };
 
