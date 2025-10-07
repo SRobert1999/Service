@@ -72,6 +72,12 @@ class ProgramareIn(BaseModel):
         description="Număr de telefon românesc",
         example="+40712345678"
     )
+    observatii: Optional[str] = Field(
+        None,
+        max_length=1000,
+        description="Observații suplimentare",
+        example="Pacient nou, preferă dimineața"
+    )
 
     # Validatori personalizați
     @validator('data')
@@ -141,16 +147,24 @@ async def get_programari():
 
 @app.post("/programari")
 async def create_programare(prog: ProgramareIn):
-    p = await Programari.create(
-        persoana_id=prog.persoana_id,
-        serviciu_id=prog.serviciu_id,
-        data=prog.data,
-        observatii=prog.observatii,
-        nume=prog.nume,
-        prenume=prog.prenume,
-        email=prog.email,
-        telefon=prog.telefon
-    )
+    # Create programare - Tortoise adaugă automat _id la ForeignKey fields
+    programare_data = {
+        "data": prog.data,
+        "ora": prog.ora,
+        "observatii": prog.observatii,
+        "nume": prog.nume,
+        "prenume": prog.prenume,
+        "email": prog.email,
+        "telefon": prog.telefon
+    }
+
+    # Adaugă foreign keys doar dacă sunt specificate
+    if prog.persoana_id is not None:
+        programare_data["persoana_id"] = prog.persoana_id
+    if prog.serviciu_id is not None:
+        programare_data["serviciu_id"] = prog.serviciu_id
+
+    p = await Programari.create(**programare_data)
     return {"status": "success", "id": p.id}
 
 

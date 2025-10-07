@@ -18,11 +18,12 @@ ENV/
 .pytest_cache/
 
 # Database
-# *.db
-# *.db-shm
-# *.db-wal
-# *.sqlite
-# *.sqlite3
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.db.backup
 
 # IDE
 .vscode/
