@@ -8,7 +8,7 @@ import router from './router';
 const app = createApp(App);
 
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "http://localhost:5000"; // process.env.API_URL;  // the FastAPI backend
+axios.defaults.baseURL = "http://localhost:5000"; // the FastAPI backend
 
 app.use(router);
 app.mount("#app");
