@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS "Servicii" (
 CREATE TABLE IF NOT EXISTS "Programari" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "data" VARCHAR(50),
+    "ora" VARCHAR(10),
     "observatii" TEXT,
     "nume" VARCHAR(100),
     "prenume" VARCHAR(100),

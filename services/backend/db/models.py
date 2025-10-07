@@ -19,16 +19,16 @@ class Serviciu(Model):
 
 
 class Programari(Model):
-    id = fields.IntField(pk=True, source_field='ID')
-    persoana_id = fields.IntField(null=True, source_field='PersoanaId')
-    serviciu_id = fields.IntField(null=True, source_field='ServiciuID')
-    data = fields.CharField(max_length=50, null=True, source_field='Data')
-    ora = fields.CharField(max_length=10, null=True, source_field='Ora')
-    observatii = fields.TextField(null=True, source_field='Observatii')
-    nume = fields.CharField(max_length=100, null=True, source_field='Nume')
-    prenume = fields.CharField(max_length=100, null=True, source_field='Prenume')
-    email = fields.CharField(max_length=200, null=True, source_field='Email')
-    telefon = fields.CharField(max_length=50, null=True, source_field='Telefon')
+    id = fields.IntField(pk=True)
+    persoana = fields.ForeignKeyField('models.Persoana', related_name='programari', null=True, on_delete=fields.CASCADE)
+    serviciu = fields.ForeignKeyField('models.Serviciu', related_name='programari', null=True, on_delete=fields.CASCADE)
+    data = fields.CharField(max_length=50, null=True)
+    ora = fields.CharField(max_length=10, null=True)
+    observatii = fields.TextField(null=True)
+    nume = fields.CharField(max_length=100, null=True)
+    prenume = fields.CharField(max_length=100, null=True)
+    email = fields.CharField(max_length=200, null=True)
+    telefon = fields.CharField(max_length=50, null=True)
 
     class Meta:
         table = "Programari"

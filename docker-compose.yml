@@ -10,7 +10,11 @@ services:
       - DATABASE_URL=sqlite:///app/db/programari.db
     volumes:
       - ./services/backend:/app
-    command: uvicorn src.main:app --reload --host 0.0.0.0 --port 5000
+    command: >
+      sh -c "
+      aerich upgrade &&
+      uvicorn src.main:app --reload --host 0.0.0.0 --port 5000
+      "
 
   frontend:
     build: ./services/frontend

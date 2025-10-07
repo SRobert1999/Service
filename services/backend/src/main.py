@@ -159,6 +159,7 @@ async def create_programare(prog: ProgramareIn):
     }
 
     # Adaugă foreign keys doar dacă sunt specificate
+    # Tortoise acceptă atât persoana_id cât și persoana pentru ForeignKeyField
     if prog.persoana_id is not None:
         programare_data["persoana_id"] = prog.persoana_id
     if prog.serviciu_id is not None:
