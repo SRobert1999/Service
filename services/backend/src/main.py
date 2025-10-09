@@ -4,7 +4,7 @@ from tortoise.contrib.fastapi import register_tortoise
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional
-from db.models import Programari
+from db.models import Programari, Persoane, Servicii
 
 app = FastAPI(title="Programari API")
 
@@ -143,6 +143,15 @@ async def get_programari():
    programari = await Programari.all().values()
    return programari
 
+@app.get("/persoane")
+async def get_persoana():
+   persoane = await Persoane.all().values()
+   return persoane
+
+@app.get("/servicii")
+async def get_servicii():
+    servicii = await Servicii.all().values()
+    return servicii
 
 
 @app.post("/programari")
