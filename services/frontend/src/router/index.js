@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ProgramariView from '../views/ProgramariView.vue'
+import LoginView from '../views/LoginView.vue'
+import EditProgramareView from '../views/EditProgramareView.vue'
 
 const routes = [
   {
@@ -13,6 +15,18 @@ const routes = [
     path: '/programari',
     name: 'programari',
     component: ProgramariView
+  },
+
+  {
+    path: '/programari/:id/edit',
+    name: 'edit-programare',
+    component: EditProgramareView
+  },
+
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginView
   }
 ]
 

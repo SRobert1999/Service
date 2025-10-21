@@ -10,27 +10,34 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>PersoanaID</th>
-          <th>ServiciuID</th>
+          <th>Persoană</th>
+          <th>Serviciu</th>
           <th>Data</th>
+          <th>Ora</th>
           <th>Observatii</th>
           <th>Nume</th>
           <th>Prenume</th>
           <th>Email</th>
           <th>Telefon</th>
+          <th v-if="currentUser">Acțiuni</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="p in programari" :key="p.id">
           <td>{{ p.id }}</td>
-          <td>{{ p.persoana_id }}</td>
-          <td>{{ p.serviciu_id }}</td>
-          <td>{{ p.data }}</td> <!-- afișează direct data -->
+          <td>{{ persoaneMap[p.persoana_id] || 'N/A' }}</td>
+          <td>{{ serviciiMap[p.serviciu_id] || 'N/A' }}</td>
+          <td>{{ p.data }}</td>
+          <td>{{ p.ora }}</td>
           <td>{{ p.observatii }}</td>
           <td>{{ p.nume }}</td>
           <td>{{ p.prenume }}</td>
           <td>{{ p.email }}</td>
           <td>{{ p.telefon }}</td>
+          <td v-if="currentUser" class="actions">
+            <button @click="editProgramare(p)" class="btn-edit">Editare</button>
+            <button @click="deleteProgramare(p.id)" class="btn-delete">Ștergere</button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -45,24 +52,99 @@ export default {
   props: {
     refresh: Boolean
   },
+  inject: ['showMessage'],
   data() {
     return {
-      programari: []
+      programari: [],
+      persoane: [],
+      servicii: [],
+      persoaneMap: {},
+      serviciiMap: {},
+      currentUser: null
     };
   },
   methods: {
     async fetchProgramari() {
       try {
-        console.error("Test");
-        const res = await axios.get("/programari");
-        this.programari = res.data;
+        // Preia toate datele în paralel
+        const [programariRes, persoaneRes, serviciiRes] = await Promise.all([
+          axios.get("/programari"),
+          axios.get("/persoane"),
+          axios.get("/servicii")
+        ]);
+
+        this.programari = programariRes.data;
+        this.persoane = persoaneRes.data;
+        this.servicii = serviciiRes.data;
+
+        console.log("Persoane:", this.persoane);
+        console.log("Servicii:", this.servicii);
+        console.log("Programari:", this.programari);
+
+        // Creează maps pentru lookup rapid
+        this.persoaneMap = {};
+        this.persoane.forEach(p => {
+          this.persoaneMap[p.id] = `${p.nume} ${p.prenume}`;
+        });
+
+        this.serviciiMap = {};
+        this.servicii.forEach(s => {
+          this.serviciiMap[s.id] = s.descriere;
+        });
+
+        console.log("PersoaneMap:", this.persoaneMap);
+        console.log("ServiciiMap:", this.serviciiMap);
+
       } catch (err) {
-        console.error("Eroare la preluarea programărilor:", err);
+        console.error("Eroare la preluarea datelor:", err);
       }
+    },
+    async checkAuthStatus() {
+      try {
+        const response = await axios.get('/users/whoami');
+        this.currentUser = response.data;
+      } catch (error) {
+        this.currentUser = null;
+      }
+    },
+    async deleteProgramare(programareId) {
+      if (!confirm('Ești sigur că vrei să ștergi această programare?')) {
+        return;
+      }
+
+      try {
+        await axios.delete(`/programari/${programareId}`);
+        this.showMessage({
+          text: "Programare ștearsă cu succes!",
+          type: "success"
+        });
+        // Reîncarcă lista de programări
+        this.fetchProgramari();
+      } catch (error) {
+        console.error('Eroare la ștergere:', error);
+        const errorMsg = error.response?.data?.detail || "Eroare la ștergerea programării!";
+        this.showMessage({
+          text: errorMsg,
+          type: "error"
+        });
+      }
+    },
+    editProgramare(programare) {
+      // Navigate to edit page with programare data
+      this.$router.push({
+        name: 'edit-programare',
+        params: { id: programare.id },
+        query: {
+          data: JSON.stringify(programare),
+          persoane: JSON.stringify(this.persoane),
+          servicii: JSON.stringify(this.servicii)
+        }
+      });
     }
   },
-  mounted() {
-    this.fetchProgramari();
+  async mounted() {
+    await this.fetchProgramari();
+    await this.checkAuthStatus();
   },
   watch: {
     refresh() {
@@ -82,5 +164,37 @@ table {
 th, td {
   padding: 8px;
   text-align: left;
+}
+
+.actions {
+  white-space: nowrap;
+  width: 150px;
+}
+
+.btn-edit, .btn-delete {
+  padding: 4px 8px;
+  margin: 0 2px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-edit {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #0056b3;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #c82333;
 }
 </style>

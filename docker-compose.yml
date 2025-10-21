@@ -8,11 +8,12 @@ services:
       - 5000:5000
     environment:
       - DATABASE_URL=sqlite:///app/db/programari.db
+      - SECRET_KEY=your_super_secret_key_here_change_in_production
     volumes:
       - ./services/backend:/app
+      - ./services/backend/db:/app/db
     command: >
       sh -c "
-      aerich upgrade &&
       uvicorn src.main:app --reload --host 0.0.0.0 --port 5000
       "
 

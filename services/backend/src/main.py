@@ -1,12 +1,22 @@
-from fastapi import FastAPI, HTTPException
+
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
+from tortoise import Tortoise
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional
 from db.models import Programari, Persoane, Servicii
+from fastapi.responses import JSONResponse
+
+# Import auth routes
+from src.routes import users
+from src.auth.jwthandler import get_current_user
 
 app = FastAPI(title="Programari API")
+
+# enable schemas to read relationship between models
+Tortoise.init_models(["db.models"], "models")  # NEW
 
 origins = [
     "http://localhost:8080",   # frontend-ul Vue
@@ -19,6 +29,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Include auth routes - authentication is optional for now
+app.include_router(users.router, tags=["Authentication"])
 
 
 class ProgramareIn(BaseModel):
@@ -176,6 +188,57 @@ async def create_programare(prog: ProgramareIn):
 
     p = await Programari.create(**programare_data)
     return {"status": "success", "id": p.id}
+
+
+@app.delete("/programari/{programare_id}")
+async def delete_programare(programare_id: int, current_user = Depends(get_current_user)):
+    """
+    Șterge o programare (doar pentru utilizatori autentificați).
+    """
+    try:
+        programare = await Programari.get_or_none(id=programare_id)
+        if not programare:
+            raise HTTPException(status_code=404, detail="Programarea nu a fost găsită")
+
+        await programare.delete()
+        return {"status": "success", "message": "Programare ștearsă cu succes"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Eroare la ștergerea programării: {str(e)}")
+
+
+@app.put("/programari/{programare_id}")
+async def update_programare(programare_id: int, prog: ProgramareIn, current_user = Depends(get_current_user)):
+    """
+    Actualizează o programare (doar pentru utilizatori autentificați).
+    """
+    try:
+        programare = await Programari.get_or_none(id=programare_id)
+        if not programare:
+            raise HTTPException(status_code=404, detail="Programarea nu a fost găsită")
+
+        # Update programare data
+        update_data = {
+            "data": prog.data,
+            "ora": prog.ora,
+            "observatii": prog.observatii,
+            "nume": prog.nume,
+            "prenume": prog.prenume,
+            "email": prog.email,
+            "telefon": prog.telefon
+        }
+
+        # Adaugă foreign keys doar dacă sunt specificate
+        if prog.persoana_id is not None:
+            update_data["persoana_id"] = prog.persoana_id
+        if prog.serviciu_id is not None:
+            update_data["serviciu_id"] = prog.serviciu_id
+
+        await programare.update_from_dict(update_data)
+        await programare.save()
+
+        return {"status": "success", "message": "Programare actualizată cu succes"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Eroare la actualizarea programării: {str(e)}")
 
 
 register_tortoise(

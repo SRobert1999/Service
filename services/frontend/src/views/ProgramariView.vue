@@ -1,3 +1,4 @@
+
 <template>
   <div class="programari">
     <h2>Programări</h2>
@@ -48,6 +49,7 @@ import axios from "axios";
 export default {
   name: "ProgramariView",
   components: { ProgramariTable },
+  inject: ['showMessage'],
   data() {
     return {
       showForm: false,
@@ -85,13 +87,34 @@ export default {
     },
     async adaugaProgramare() {
       try {
-        const payload = { ...this.newProgramare,
-          persoana_id: this.newProgramare.persoana_id || null,
-          serviciu_id: this.newProgramare.serviciu_id || null};
+        // Validare minimă
+        if (!this.newProgramare.data || !this.newProgramare.ora) {
+          alert("Vă rugăm completați data și ora!");
+          return;
+        }
 
+        // Curățim payload-ul - stringuri goale devin null
+        const payload = {
+          data: this.newProgramare.data,
+          ora: this.newProgramare.ora,
+          nume: this.newProgramare.nume || null,
+          prenume: this.newProgramare.prenume || null,
+          email: this.newProgramare.email || null,
+          telefon: this.newProgramare.telefon || null,
+          observatii: this.newProgramare.observatii || null,
+          persoana_id: this.newProgramare.persoana_id || null,
+          serviciu_id: this.newProgramare.serviciu_id || null
+        };
+
+        console.log("Sending payload:", payload);
         await axios.post("/programari", payload);
 
-        alert("Programare adăugată!");
+        // Show success message instead of alert
+        this.showMessage({
+          text: "Programare adăugată cu succes!",
+          type: "success"
+        });
+
         this.showForm = false;
 
         // reset
@@ -110,8 +133,17 @@ export default {
         this.refreshTable = !this.refreshTable;
 
       } catch (err) {
-        console.error(err.response ? err.response.data : err);
-        alert("Eroare la adăugare programare!");
+        console.error("Error details:", err.response ? err.response.data : err);
+
+        // Show more specific error message
+        const errorMsg = err.response?.data?.detail ||
+                        err.response?.data?.message ||
+                        "Eroare la adăugare programare!";
+
+        this.showMessage({
+          text: errorMsg,
+          type: "error"
+        });
       }
     }
   }

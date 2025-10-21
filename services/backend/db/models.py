@@ -1,6 +1,17 @@
 from tortoise import fields
 from tortoise.models import Model
 
+class Users(Model):
+    id = fields.IntField(pk=True)
+    username = fields.CharField(max_length=50, unique=True)
+    password = fields.CharField(max_length=200)
+    email = fields.CharField(max_length=200, unique=True)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    modified_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "Users"
+
 class Persoane(Model):
     id = fields.IntField(pk=True)
     nume = fields.CharField(max_length=100)
