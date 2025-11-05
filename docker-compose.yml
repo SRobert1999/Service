@@ -14,10 +14,10 @@ services:
       - backend_db:/tmp/db
     command: >
       sh -c "
-      mkdir -p /tmp/db &&           # 👈 Creează directorul BD
-      python apply_migration.py &&  # 👈 Aplică migrările
-      python test_data.py &&        # 👈 Adaugă date de test
-      uvicorn src.main:app --reload --host 0.0.0.0 --port 5000  # 👈 Pornește server
+      mkdir -p /tmp/db &&
+      python apply_migration.py &&
+      python migrations/test_data.py &&
+      uvicorn src.main:app --reload --host 0.0.0.0 --port 5000
       "
 
   frontend:

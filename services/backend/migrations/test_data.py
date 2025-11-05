@@ -81,10 +81,10 @@ async def upgrade():
     await Programari.create(
         data=tomorrow.isoformat(),
         ora='09:00',
-        nume_client='Client Test 1',
-        prenume_client='Test',
-        email_client='client1@email.com',
-        telefon_client='+40711234567',
+        nume='Client Test 1',
+        prenume='Test',
+        email='client1@email.com',
+        telefon='+40711234567',
         observatii='Programare la stomatolog',
         status='pending',
         persoana=pers1,  # Popescu Ion
@@ -95,10 +95,10 @@ async def upgrade():
     await Programari.create(
         data=tomorrow.isoformat(),
         ora='10:30',
-        nume_client='Client Test 2',
-        prenume_client='Test',
-        email_client='client2@email.com',
-        telefon_client='+40712234567',
+        nume='Client Test 2',
+        prenume='Test',
+        email='client2@email.com',
+        telefon='+40712234567',
         observatii='Programare la mecanic auto',
         status='confirmed',
         persoana=pers1,  # Popescu Ion (calificat și ca mecanic)
@@ -109,10 +109,10 @@ async def upgrade():
     await Programari.create(
         data=next_week.isoformat(),
         ora='14:00',
-        nume_client='Client Test 3',
-        prenume_client='Test',
-        email_client='client3@email.com',
-        telefon_client='+40713234567',
+        nume='Client Test 3',
+        prenume='Test',
+        email='client3@email.com',
+        telefon='+40713234567',
         observatii='Programare electrician',
         status='pending',
         persoana=pers3,  # Stan Radu
