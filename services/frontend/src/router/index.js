@@ -3,12 +3,19 @@ import HomeView from '../views/HomeView.vue'
 import ProgramariView from '../views/ProgramariView.vue'
 import LoginView from '../views/LoginView.vue'
 import EditProgramareView from '../views/EditProgramareView.vue'
+import SelectJobView from '../views/SelectJobView.vue'
 
 const routes = [
   {
     path: '/',
     name: 'home',
     component: HomeView
+  },
+
+  {
+    path: '/select-job',
+    name: 'select-job',
+    component: SelectJobView
   },
 
   {

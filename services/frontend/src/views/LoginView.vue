@@ -143,7 +143,7 @@ export default {
         formData.append('username', this.loginForm.username);
         formData.append('password', this.loginForm.password);
 
-        const response = await axios.post('/login', formData, {
+        await axios.post('/login', formData, {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
           }
@@ -198,6 +198,7 @@ export default {
       this.message = '';
 
       try {
+        // eslint-disable-next-line no-unused-vars
         const { confirmPassword, ...userData } = this.registerForm;
 
         await axios.post('/register', userData);

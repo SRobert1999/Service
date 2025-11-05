@@ -114,20 +114,20 @@ class ProgramareIn(BaseModel):
 
     # Compatibilitate cu frontend-ul vechi
     @property
-    def nume_display(self):
-        return getattr(self, 'nume', None)
+    def nume(self):
+        return self.nume_client
 
     @property
-    def prenume_display(self):
-        return getattr(self, 'prenume', None)
+    def prenume(self):
+        return self.prenume_client
 
     @property
-    def email_display(self):
-        return getattr(self, 'email', None)
+    def email(self):
+        return self.email_client
 
     @property
-    def telefon_display(self):
-        return getattr(self, 'telefon', None)
+    def telefon(self):
+        return self.telefon_client
 
     # Validatori personalizați
     @validator('data')
@@ -152,12 +152,12 @@ class ProgramareIn(BaseModel):
         except ValueError:
             raise ValueError('Formatul orei trebuie să fie HH:MM (ex: 14:30)')
 
-    # @validator('nume', 'prenume')
-    # def validate_nume(cls, v):
-    #     """Verifică că numele conține doar litere și spații."""
-    #     if v and not all(c.isalpha() or c.isspace() for c in v):
-    #         raise ValueError('Numele poate conține doar litere și spații')
-    #     return v
+    @validator('nume', 'prenume')
+    def validate_nume(cls, v):
+        """Verifică că numele conține doar litere și spații."""
+        if v and not all(c.isalpha() or c.isspace() for c in v):
+            raise ValueError('Numele poate conține doar litere și spații')
+        return v
 
     class Config:
         check_fields = False

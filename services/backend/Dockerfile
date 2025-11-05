@@ -12,3 +12,4 @@ RUN pip install -r requirements.txt
 
 COPY src/ .
 COPY db/ .
+COPY migrations/ .

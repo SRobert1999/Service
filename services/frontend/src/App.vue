@@ -54,10 +54,17 @@ export default {
         this.currentUser = response.data;
         // Store in localStorage for persistence
         localStorage.setItem('currentUser', JSON.stringify(response.data));
+        console.log('User authenticated:', this.currentUser);
       } catch (error) {
-        // User is not authenticated
+        // User is not authenticated - this is normal for unauthenticated users
+        console.log('User not authenticated:', error.response?.status || error.message);
         this.currentUser = null;
         localStorage.removeItem('currentUser');
+
+        // Don't show error to user - this is expected behavior
+        if (error.response && error.response.status !== 401) {
+          console.error('Unexpected authentication error:', error);
+        }
       }
     },
 

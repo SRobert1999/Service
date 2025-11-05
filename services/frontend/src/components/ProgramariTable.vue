@@ -11,6 +11,7 @@
         <tr>
           <th>ID</th>
           <th>Persoană</th>
+          <th>Job</th>
           <th>Serviciu</th>
           <th>Data</th>
           <th>Ora</th>
@@ -26,6 +27,7 @@
         <tr v-for="p in programari" :key="p.id">
           <td>{{ p.id }}</td>
           <td>{{ persoaneMap[p.persoana_id] || 'N/A' }}</td>
+          <td>{{ jobsMap[p.job_id] || 'N/A' }}</td>
           <td>{{ serviciiMap[p.serviciu_id] || 'N/A' }}</td>
           <td>{{ p.data }}</td>
           <td>{{ p.ora }}</td>
@@ -58,27 +60,39 @@ export default {
       programari: [],
       persoane: [],
       servicii: [],
+      jobs: [],
       persoaneMap: {},
       serviciiMap: {},
+      jobsMap: {},
       currentUser: null
     };
   },
   methods: {
     async fetchProgramari() {
       try {
+        // Get job_id from parent route query params
+        const jobId = this.$route.query.job_id;
+
+        // Build URLs with job_id filter if available
+        const persoaneUrl = jobId ? `/persoane?job_id=${jobId}` : '/persoane';
+        const serviciiUrl = jobId ? `/servicii?job_id=${jobId}` : '/servicii';
+
         // Preia toate datele în paralel
-        const [programariRes, persoaneRes, serviciiRes] = await Promise.all([
+        const [programariRes, persoaneRes, serviciiRes, jobsRes] = await Promise.all([
           axios.get("/programari"),
-          axios.get("/persoane"),
-          axios.get("/servicii")
+          axios.get(persoaneUrl),
+          axios.get(serviciiUrl),
+          axios.get("/jobs")
         ]);
 
         this.programari = programariRes.data;
         this.persoane = persoaneRes.data;
         this.servicii = serviciiRes.data;
+        this.jobs = jobsRes.data;
 
         console.log("Persoane:", this.persoane);
         console.log("Servicii:", this.servicii);
+        console.log("Jobs:", this.jobs);
         console.log("Programari:", this.programari);
 
         // Creează maps pentru lookup rapid
@@ -92,8 +106,14 @@ export default {
           this.serviciiMap[s.id] = s.descriere;
         });
 
+        this.jobsMap = {};
+        this.jobs.forEach(j => {
+          this.jobsMap[j.id] = j.nume;
+        });
+
         console.log("PersoaneMap:", this.persoaneMap);
         console.log("ServiciiMap:", this.serviciiMap);
+        console.log("JobsMap:", this.jobsMap);
 
       } catch (err) {
         console.error("Eroare la preluarea datelor:", err);

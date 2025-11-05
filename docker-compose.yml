@@ -7,14 +7,17 @@ services:
     ports:
       - 5000:5000
     environment:
-      - DATABASE_URL=sqlite:///app/db/programari.db
+      - DATABASE_URL=sqlite:///tmp/db/programari.db
       - SECRET_KEY=your_super_secret_key_here_change_in_production
     volumes:
       - ./services/backend:/app
-      - ./services/backend/db:/app/db
+      - backend_db:/tmp/db
     command: >
       sh -c "
-      uvicorn src.main:app --reload --host 0.0.0.0 --port 5000
+      mkdir -p /tmp/db &&           # 👈 Creează directorul BD
+      python apply_migration.py &&  # 👈 Aplică migrările
+      python test_data.py &&        # 👈 Adaugă date de test
+      uvicorn src.main:app --reload --host 0.0.0.0 --port 5000  # 👈 Pornește server
       "
 
   frontend:
@@ -25,6 +28,9 @@ services:
     ports:
       - 8080:8080
     environment:
-      - API_URL=http://localhost:5000      -
+      - API_URL=http://localhost:5000
 
 
+volumes:
+  backend_db:
+    driver: local

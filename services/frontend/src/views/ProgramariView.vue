@@ -1,7 +1,15 @@
 
 <template>
   <div class="programari">
-    <h2>Programări</h2>
+    <div class="header">
+      <h2>
+        <span v-if="selectedJobName">Programări - {{ selectedJobName }}</span>
+        <span v-else>Programări</span>
+      </h2>
+      <button @click="goBack" v-if="selectedJobName" class="btn-back">
+        ← Schimbă categorie
+      </button>
+    </div>
 
     <button @click="showForm = !showForm">
       {{ showForm ? 'Închide formular' : 'Adaugă programare' }}
@@ -55,6 +63,8 @@ export default {
       showForm: false,
       persoane: [],
       servicii: [],
+      selectedJobId: null,
+      selectedJobName: null,
       newProgramare: {
         nume: "",
         prenume: "",
@@ -70,20 +80,38 @@ export default {
     };
   },
   async mounted() {
+    // Check if we have job_id from query params
+    const { job_id, job_name } = this.$route.query;
+    if (job_id) {
+      this.selectedJobId = parseInt(job_id);
+      this.selectedJobName = job_name || 'Categoria selectată';
+    }
     await this.loadData();
   },
   methods: {
     async loadData() {
       try {
+        // Build URLs with job_id filter if available
+        const persoaneUrl = this.selectedJobId ? `/persoane?job_id=${this.selectedJobId}` : '/persoane';
+        const serviciiUrl = this.selectedJobId ? `/servicii?job_id=${this.selectedJobId}` : '/servicii';
+
         const [persResp, servResp] = await Promise.all([
-          axios.get("/persoane"),
-          axios.get("/servicii")
+          axios.get(persoaneUrl),
+          axios.get(serviciiUrl)
         ]);
         this.persoane = persResp.data;
         this.servicii = servResp.data;
+        console.log(`Loaded ${this.persoane.length} persoane and ${this.servicii.length} servicii for job_id:`, this.selectedJobId);
       } catch (err) {
         console.error("Eroare la încărcarea listelor:", err);
+        this.showMessage({
+          text: "Eroare la încărcarea datelor!",
+          type: "error"
+        });
       }
+    },
+    goBack() {
+      this.$router.push('/select-job');
     },
     async adaugaProgramare() {
       try {
@@ -151,12 +179,54 @@ export default {
 </script>
 
 <style>
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.header h2 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.btn-back {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-back:hover {
+  background: #5a6268;
+}
+
 .form {
   margin: 15px 0;
 }
+
 .form input, .form textarea, .form select {
   display: block;
   margin-bottom: 10px;
   width: 300px;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form input, .form textarea, .form select {
+    width: 100%;
+    max-width: 300px;
+  }
 }
 </style>
