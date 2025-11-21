@@ -214,22 +214,30 @@ async def get_servicii(job_id: Optional[int] = None):
     return servicii
 
 @app.get("/programari")
-async def get_programari():
+async def get_programari(persoana_id: Optional[int] = None, job_id: Optional[int] = None):
    """
    Returnează programările din data curentă și viitoare.
-   Programările din trecut rămân în baza de date dar nu sunt afișate.
+   Poate filtra după persoana_id și/sau job_id.
    """
    # Obține data curentă pentru filtrare
    data_curenta = await filtreaza_programari_data_curenta()
 
+   # Construiește filtrele
+   filters = {}
    if data_curenta:
-       # Filtrează programările pentru a afișa doar cele din data curentă și viitoare
-       programari = await Programari.filter(data__gte=data_curenta).values()
-       print(f"Displayed {len(programari)} appointments from current date onwards (date: {data_curenta})")
+       filters['data__gte'] = data_curenta
+   if persoana_id is not None:
+       filters['persoana_id'] = persoana_id
+   if job_id is not None:
+       filters['job_id'] = job_id
+
+   # Aplică filtrele
+   if filters:
+       programari = await Programari.filter(**filters).values()
+       print(f"Displayed {len(programari)} appointments with filters: {filters}")
    else:
-       # În caz de eroare, afișează toate programările
        programari = await Programari.all().values()
-       print("Error getting current date - showing all appointments")
+       print("Showing all appointments (no filters)")
 
    return programari
 
